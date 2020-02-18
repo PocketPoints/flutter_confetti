@@ -188,7 +188,7 @@ class ParticleSystem extends ChangeNotifier {
 
 class Particle {
   Particle(
-      vmath.Vector2 startUpForce, Color color, Size size, double fallingSpeed)
+      vmath.Vector2 startUpForce, Color color, Size size, this.fallingSpeed)
       : _startUpForce = startUpForce,
         _color = color,
         _mass = randomize(1, 11),
@@ -199,8 +199,7 @@ class Particle {
         // _size = Size(randomize(20, 30), randomize(10, 15)),
         _aVelocityX = randomize(-0.1, 0.1),
         _aVelocityY = randomize(-0.1, 0.1),
-        _aVelocityZ = randomize(-0.1, 0.1),
-        _fallingSpeed = fallingSpeed;
+        _aVelocityZ = randomize(-0.1, 0.1);
 
   final vmath.Vector2 _startUpForce;
 
@@ -214,7 +213,7 @@ class Particle {
   double _aVelocityY;
   double _aZ = 0;
   double _aVelocityZ;
-  double _fallingSpeed;
+  final double fallingSpeed;
   final _aAcceleration = 0.0001;
 
   final Color _color;
@@ -260,7 +259,7 @@ class Particle {
 
     _timeAlive += 1;
 
-    applyForce(vmath.Vector2(0, _fallingSpeed));
+    applyForce(vmath.Vector2(0, fallingSpeed));
 
     _velocity.add(_acceleration);
     _location.add(_velocity);

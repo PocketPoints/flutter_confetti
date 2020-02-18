@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:confetti/src/particle.dart';
+import 'package:vector_math/vector_math.dart' as vmath;
 
 class ConfettiWidget extends StatefulWidget {
   const ConfettiWidget({
@@ -11,7 +12,9 @@ class ConfettiWidget extends StatefulWidget {
     this.numberOfParticles = 10,
     this.maxBlastForce = 20,
     this.minBlastForce = 5,
+    this.blastDirectionality = BlastDirectionality.directional,
     this.blastDirection = pi,
+    this.fallingSpeed = 0.3,
     this.shouldLoop = false,
     this.displayTarget = false,
     this.colors,
@@ -24,6 +27,7 @@ class ConfettiWidget extends StatefulWidget {
                 numberOfParticles != null &&
                 maxBlastForce != null &&
                 minBlastForce != null &&
+                blastDirectionality != null &&
                 blastDirection != null),
         assert(emissionFrequency >= 0 &&
             emissionFrequency <= 1 &&
@@ -44,9 +48,16 @@ class ConfettiWidget extends StatefulWidget {
   /// a particle within it's first 5 frames of life. The default [minBlastForce] is set to `5`
   final double minBlastForce;
 
+  /// The [blastDirectionality] is an enum that takes one of two values - directional or explosive.
+  /// The default is set to directional
+  final BlastDirectionality blastDirectionality;
+
   /// The [blastDirection] is a radial value to determine the direction of the particle emission.
   /// The default is set to `PI` (180 degrees). A value of `PI` will emit to the left of the canvas/screen.
   final double blastDirection;
+
+  /// The [fallingSpeed] is speed of confetti's falling.
+  final double fallingSpeed;
 
   /// The [emissionFrequency] should be a value between 0 and 1. The higher the value the higher the
   /// likelihood that particles will be emitted on a single frame. Default is set to `0.02` (2% chance)
@@ -89,6 +100,9 @@ class _ConfettiWidgetState extends State<ConfettiWidget>
   Animation<double> _animation;
   ParticleSystem _particleSystem;
 
+  double get _randomBlastDirection =>
+      vmath.radians(Random().nextInt(359).toDouble());
+
   @override
   void initState() {
     widget.confettiController.addListener(_handleChange);
@@ -98,7 +112,11 @@ class _ConfettiWidgetState extends State<ConfettiWidget>
       numberOfParticles: widget.numberOfParticles,
       maxBlastForce: widget.maxBlastForce,
       minBlastForce: widget.minBlastForce,
-      blastDirection: widget.blastDirection,
+      blastDirection:
+          widget.blastDirectionality == BlastDirectionality.directional
+              ? widget.blastDirection
+              : _randomBlastDirection,
+      fallingSpeed: widget.fallingSpeed,
       colors: widget.colors,
       minimumSize: widget.minimumSize,
       maximumsize: widget.maximumSize,
@@ -313,6 +331,11 @@ class ParticlePainter extends CustomPainter {
 enum ConfettiControllerState {
   playing,
   stopped,
+}
+
+enum BlastDirectionality {
+  directional,
+  explosive,
 }
 
 class ConfettiController extends ChangeNotifier {
